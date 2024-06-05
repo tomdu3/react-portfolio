@@ -1,13 +1,27 @@
 import type { Config } from "tailwindcss";
 
 const svgToDataUri = require("mini-svg-data-uri");
-
 const colors = require("tailwindcss/colors");
-const {
-  default: flattenColorPalette,
-} = require("tailwindcss/lib/util/flattenColorPalette");
 
-const config = {
+// Assuming flattenColorPalette has been removed in newer versions
+// We will create a utility function to flatten the color palette
+function flattenColorPalette(palette: any) {
+  const flattened: any = {};
+
+  for (const [color, values] of Object.entries(palette)) {
+    if (typeof values === "object") {
+      for (const [shade, value] of Object.entries(values)) {
+        flattened[`${color}-${shade}`] = value;
+      }
+    } else {
+      flattened[color] = values;
+    }
+  }
+
+  return flattened;
+}
+
+const config: Config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -39,7 +53,7 @@ const config = {
           200: "#C1C2D3",
         },
         blue: {
-          "100": "#E4ECFF",
+          100: "#E4ECFF",
         },
         purple: "#CBACF9",
         border: "hsl(var(--border))",
@@ -188,11 +202,11 @@ const config = {
       );
     },
   ],
-} satisfies Config;
+};
 
 function addVariablesForColors({ addBase, theme }: any) {
-  let allColors = flattenColorPalette(theme("colors"));
-  let newVars = Object.fromEntries(
+  const allColors = flattenColorPalette(theme("colors"));
+  const newVars = Object.fromEntries(
     Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
   );
 
